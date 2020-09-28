@@ -11,7 +11,7 @@
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.3",
     "recoil": "0.0.13",
-    "tailwind": "^4.0.0"
+    "tailwindcss": "^1.8.10"
   },
   "scripts": {
     "build:styles": "npx tailwindcss build src/styles/tailwind.css -o src/styles/index.css",

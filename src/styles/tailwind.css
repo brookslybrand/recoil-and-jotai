@@ -1,3 +1,9 @@
 @tailwind base;
+
+/* prevent the whole page from scrolling, since only the sidebar will scroll */
+body {
+  overflow: hidden;
+}
+
 @tailwind components;
 @tailwind utilities;
