@@ -35,16 +35,15 @@
       "last 1 safari version"
     ]
   },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged"
     }
   },
   "devDependencies": {
-    "eslint": "^7.10.0",
-    "eslint-config-prettier": "^6.12.0",
-    "eslint-plugin-jsx-a11y": "^6.3.1",
-    "eslint-plugin-prettier": "^3.1.4",
     "husky": "^4.3.0",
     "prettier": "^2.1.2",
     "pretty-quick": "^3.0.2"
