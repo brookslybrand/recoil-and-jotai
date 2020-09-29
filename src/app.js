@@ -1,7 +1,11 @@
 import React from 'react'
 import Canvas from './canvas'
 
+import { useElements } from './elements-state'
+
 export default function App() {
+  const [elements, dispatch] = useElements()
+
   return (
     <div className="flex flex-col h-screen">
       <Header />
@@ -34,7 +38,7 @@ export default function App() {
           </div>
         </Sidebar>
         <Main>
-          <Canvas />
+          <Canvas elements={elements} dispatch={dispatch} />
         </Main>
       </div>
     </div>
