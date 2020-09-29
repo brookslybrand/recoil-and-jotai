@@ -2,7 +2,14 @@ import { useReducer } from 'react'
 import { v4 as uuid } from 'uuid'
 import produce from 'immer'
 
-export { useElements, addElement, startDrag, stopDrag, drag }
+export {
+  useElements,
+  addElement,
+  startDrag,
+  stopDrag,
+  drag,
+  changeElementAttributes,
+}
 
 function useElements() {
   const [{ elements }, dispatch] = useReducer(elementsReducer, initialState)
@@ -14,6 +21,7 @@ const ADD_ELEMENT = 'ADD_ELEMENT'
 const START_DRAG = 'START_DRAG'
 const STOP_DRAG = 'STOP_DRAG'
 const DRAG = 'DRAG'
+const CHANGE_ELEMENT_ATTRIBUTES = 'CHANGE_ELEMENT_ATTRIBUTES'
 
 const DEFAULT_WIDTH = 75
 const DEFAULT_HEIGHT = 75
@@ -24,7 +32,7 @@ function createElement(x, y) {
     height: DEFAULT_HEIGHT,
     x: x - DEFAULT_WIDTH / 2,
     y: y - DEFAULT_WIDTH / 2,
-    color: 'blue',
+    color: '#0000ff',
   }
 }
 
@@ -58,6 +66,15 @@ const elementsReducer = produce((draft, action) => {
       Object.assign(element, { x: x - diffX, y: y - diffY })
       break
     }
+    // change any attributes on the element
+    case CHANGE_ELEMENT_ATTRIBUTES: {
+      let { id, ...newAttributes } = action
+      const element = draft.elements.find((element) => element.id === id)
+      // bail if element doesn't exist
+      if (element === undefined) return
+      Object.assign(element, newAttributes)
+      break
+    }
     default: {
       throw Error(`Uncaught action of type ${action.type}`)
     }
@@ -87,4 +104,8 @@ function stopDrag() {
 
 function drag({ x, y }) {
   return { type: DRAG, x, y }
+}
+
+function changeElementAttributes({ id, ...newAttributes }) {
+  return { type: CHANGE_ELEMENT_ATTRIBUTES, id, ...newAttributes }
 }

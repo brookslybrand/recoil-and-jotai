@@ -1,7 +1,7 @@
 import React from 'react'
 import Canvas from './canvas'
 
-import { useElements } from './elements-state'
+import { useElements, changeElementAttributes } from './elements-state'
 
 export default function App() {
   const [elements, dispatch] = useElements()
@@ -12,35 +12,68 @@ export default function App() {
 
       <div className="flex-1 flex flex-row overflow-hidden">
         <Sidebar>
-          <div className="flex flex-col px-4 py-4 space-y-2">
-            {/* <label className="text-white">
-              X:{' '}
-              <input
-                className="text-black"
-                type="number"
-                value={x}
-                onChange={(e) =>
-                  dispatch({ type: CHANGE_POSITION, x: Number(e.target.value) })
-                }
+          <div className="px-4 py-4">
+            {elements.map(({ id, x, y, color }, idx) => (
+              <ElementInputs
+                key={id}
+                id={id}
+                title={`Element ${idx + 1}`}
+                x={x}
+                y={y}
+                color={color}
+                dispatch={dispatch}
               />
-            </label>
-            <label className="text-white">
-              Y:{' '}
-              <input
-                className="text-black"
-                type="number"
-                value={y}
-                onChange={(e) =>
-                  dispatch({ type: CHANGE_POSITION, y: Number(e.target.value) })
-                }
-              />
-            </label> */}
+            ))}
           </div>
         </Sidebar>
         <Main>
           <Canvas elements={elements} dispatch={dispatch} />
         </Main>
       </div>
+    </div>
+  )
+}
+
+function ElementInputs({ id, title, x, y, color, dispatch }) {
+  const handleChangeElementAttributes = (attributes) =>
+    dispatch(changeElementAttributes({ id, ...attributes }))
+  return (
+    <div className="flex flex-col justify-start mt-4 space-y-2">
+      <h2 className="text-white text-xl">{title}</h2>
+      <label className="text-white">
+        x:{' '}
+        <input
+          className="text-black"
+          type="number"
+          value={x}
+          onChange={(e) =>
+            handleChangeElementAttributes({ x: Number(e.target.value) })
+          }
+        />
+      </label>
+      <label className="text-white">
+        y:{' '}
+        <input
+          className="text-black"
+          type="number"
+          value={y}
+          onChange={(e) =>
+            handleChangeElementAttributes({ y: Number(e.target.value) })
+          }
+        />
+      </label>
+      <label className="text-white">
+        color:{' '}
+        <input
+          className="text-black"
+          type="color"
+          value={color}
+          onChange={(e) => {
+            console.log(e.target.value)
+            handleChangeElementAttributes({ color: e.target.value })
+          }}
+        />
+      </label>
     </div>
   )
 }
