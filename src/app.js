@@ -7,7 +7,32 @@ export default function App() {
       <Header />
 
       <div className="flex-1 flex flex-row overflow-hidden">
-        <Sidebar></Sidebar>
+        <Sidebar>
+          <div className="flex flex-col px-4 py-4 space-y-2">
+            {/* <label className="text-white">
+              X:{' '}
+              <input
+                className="text-black"
+                type="number"
+                value={x}
+                onChange={(e) =>
+                  dispatch({ type: CHANGE_POSITION, x: Number(e.target.value) })
+                }
+              />
+            </label>
+            <label className="text-white">
+              Y:{' '}
+              <input
+                className="text-black"
+                type="number"
+                value={y}
+                onChange={(e) =>
+                  dispatch({ type: CHANGE_POSITION, y: Number(e.target.value) })
+                }
+              />
+            </label> */}
+          </div>
+        </Sidebar>
         <Main>
           <Canvas />
         </Main>
