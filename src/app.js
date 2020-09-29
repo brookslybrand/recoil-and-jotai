@@ -43,7 +43,7 @@ export default function App() {
 
 function Header() {
   return (
-    <header className="flex items-center bg-indigo-700 px-4 py-2">
+    <header className="flex items-center bg-indigo-700 px-4 py-2 z-10">
       <h1 className="text-3xl text-gray-200 leading-none">
         Recoil Jotai Comparison
       </h1>
@@ -53,7 +53,7 @@ function Header() {
 
 function Main({ children }) {
   return (
-    <main className="flex-1 overflow-x-hidden overflow-y-hidden">
+    <main className="flex-1 overflow-x-hidden overflow-y-hidden z-0">
       {children}
     </main>
   )
@@ -61,7 +61,7 @@ function Main({ children }) {
 
 function Sidebar({ children }) {
   return (
-    <aside className="static inset-y-0 left-0 w-64 bg-gray-900 overflow-y-auto">
+    <aside className="static inset-y-0 left-0 w-64 bg-gray-900 overflow-y-auto z-10">
       {children}
     </aside>
   )

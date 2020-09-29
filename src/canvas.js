@@ -1,15 +1,78 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import React, { useReducer } from 'react'
+import { v4 as uuid } from 'uuid'
+import produce from 'immer'
 
+// action types
+const ADD_ELEMENT = 'ADD_ELEMENT'
+const START_DRAG = 'START_DRAG'
 const STOP_DRAG = 'STOP_DRAG'
+const DRAG = 'DRAG'
+
+const DEFAULT_WIDTH = 75
+const DEFAULT_HEIGHT = 75
+function createElement(x, y) {
+  return {
+    id: uuid(),
+    width: DEFAULT_WIDTH,
+    height: DEFAULT_HEIGHT,
+    x: x - DEFAULT_WIDTH / 2,
+    y: y - DEFAULT_WIDTH / 2,
+    color: 'blue',
+  }
+}
+
+const elementsReducer = produce((draft, action) => {
+  switch (action.type) {
+    case ADD_ELEMENT: {
+      const newElement = createElement(action.x, action.y)
+      draft.elements.push(newElement)
+      break
+    }
+    case START_DRAG: {
+      const { id, diffX, diffY } = action
+      const element = draft.elements.find((element) => element.id === id)
+      // bail if element doesn't exist
+      if (element === undefined) return
+      Object.assign(draft, { draggingId: id, diffX, diffY })
+      break
+    }
+    case STOP_DRAG: {
+      Object.assign(draft, { draggingId: null, diffX: null, diffY: null })
+      break
+    }
+    case DRAG: {
+      const { draggingId, diffX, diffY } = draft
+      // bail if not dragging
+      if (draggingId === null) break
+      const element = draft.elements.find(({ id }) => id === draggingId)
+      // bail if element doesn't exist
+      if (element === undefined) return
+      const { x, y } = action
+      Object.assign(element, { x: x - diffX, y: y - diffY })
+      break
+    }
+    default: {
+      throw Error(`Uncaught action of type ${action.type}`)
+    }
+  }
+})
+
+const initialState = {
+  draggingId: null, // if null, it means no elements are being dragged
+  diffX: null,
+  diffY: null,
+  elements: [],
+}
 
 export default function Canvas() {
-  const [ref, { top, left }] = useTopLeft()
-  const [{ x, y }, dispatch] = useReducer(dragReducer, initialDragState)
+  const [{ elements }, dispatch] = useReducer(elementsReducer, initialState)
 
   return (
     <section
-      ref={ref}
       className="w-full h-full bg-gray-200"
+      onClick={(e) => {
+        dispatch({ type: ADD_ELEMENT, x: e.clientX, y: e.clientY })
+      }}
       onMouseLeave={(e) => {
         e.preventDefault()
         dispatch({ type: STOP_DRAG })
@@ -18,8 +81,8 @@ export default function Canvas() {
         e.preventDefault()
         dispatch({
           type: DRAG,
-          x: e.clientX - left,
-          y: e.clientY - top,
+          x: e.clientX,
+          y: e.clientY,
         })
       }}
       onMouseUp={(e) => {
@@ -27,112 +90,42 @@ export default function Canvas() {
         dispatch({ type: STOP_DRAG })
       }}
     >
-      <Draggable top={top} left={left} x={x} y={y} dispatch={dispatch} />
+      {elements.map(({ id, x, y, width, height, color }) => (
+        <Draggable
+          key={id}
+          top={y}
+          left={x}
+          width={width}
+          height={height}
+          color={color}
+          onMouseDown={(e) => {
+            e.preventDefault()
+            dispatch({
+              type: START_DRAG,
+              id,
+              diffX: e.clientX - x,
+              diffY: e.clientY - y,
+            })
+          }}
+        />
+      ))}
     </section>
   )
 }
 
-function useTopLeft() {
-  const [{ top, left }, setDimensions] = useState({ top: null, left: null })
-  const ref = useRef(null)
-
-  useEffect(() => {
-    if (ref.current === null) return
-    const handleResize = () => {
-      const { x, y } = ref.current.getBoundingClientRect()
-
-      setDimensions((prev) => {
-        // if nothing changed, don't update the values
-        if (y === prev.top && x === prev.left) {
-          return prev
-        }
-        return { top: y, left: x }
-      })
-    }
-    handleResize() // find the initial values
-    window.addEventListener('resize', handleResize)
-
-    return () => window.removeEventListener('resize', handleResize)
-  })
-
-  return [ref, { top, left }]
-}
-
-// action types
-const START_DRAG = 'START_DRAG'
-
-const DRAG = 'DRAG'
-
-function dragReducer(state, action) {
-  switch (action.type) {
-    case START_DRAG: {
-      const { diffX, diffY } = action
-      return { ...state, status: 'dragging', diffX, diffY }
-    }
-    case STOP_DRAG: {
-      return { ...state, status: 'idle', diffX: null, diffY: null }
-    }
-    case DRAG: {
-      if (state.status === 'dragging') {
-        const { diffX, diffY } = state
-        const { x, y } = action
-        return { ...state, x: x - diffX, y: y - diffY }
-      }
-      return state
-    }
-    default: {
-      throw Error(`Uncaught action of type ${action.type}`)
-    }
-  }
-}
-
-const initialDragState = {
-  status: 'idle', // one of ['dragging', 'idle']
-  x: 50,
-  y: 50,
-}
-function Draggable({ top, left, x, y, dispatch }) {
-  const width = 75
-  const height = 75
-
-  if (top === null || left === null) return null
-
+function Draggable({ top, left, width, height, color, onMouseDown }) {
   return (
     <div
-      className="relative cursor-move cursor"
+      className="absolute cursor-move cursor overflow-hidden"
       style={{
-        top: y,
-        left: x,
+        top,
+        left,
         width,
         height,
-        backgroundColor: 'blue',
+        backgroundColor: color,
       }}
-      onMouseDown={(e) => {
-        e.preventDefault()
-        const { clientY, clientX } = e
-
-        const diffX = clientX - left - x
-        const diffY = clientY - top - y
-
-        dispatch({ type: START_DRAG, diffX, diffY })
-      }}
-      // onMouseUp={(e) => {
-      //   e.preventDefault()
-      //   dispatch({ type: STOP_DRAG })
-      // }}
-      // onMouseMove={(e) => {
-      //   e.preventDefault()
-      //   const { clientX, clientY } = e
-      //   dispatch({
-      //     type: DRAG,
-      //     y: clientY - top - height / 2,
-      //     x: clientX - left - width / 2,
-      //   })
-      // }}
-      // onMouseLeave={(e) => {
-      //   e.preventDefault()
-      //   dispatch({ type: STOP_DRAG })
-      // }}
+      onMouseDown={onMouseDown}
+      onClick={(e) => e.stopPropagation()}
     />
   )
 }
