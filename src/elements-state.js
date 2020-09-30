@@ -1,10 +1,12 @@
 import { useReducer } from 'react'
 import { v4 as uuid } from 'uuid'
 import produce from 'immer'
+import randomColor from 'randomcolor'
 
 export {
   useElements,
   addElement,
+  removeElement,
   startDrag,
   stopDrag,
   drag,
@@ -18,6 +20,7 @@ function useElements() {
 
 // action types
 const ADD_ELEMENT = 'ADD_ELEMENT'
+const REMOVE_ELEMENT = 'REMOVE_ELEMENT'
 const START_DRAG = 'START_DRAG'
 const STOP_DRAG = 'STOP_DRAG'
 const DRAG = 'DRAG'
@@ -30,9 +33,9 @@ function createElement(x, y) {
     id: uuid(),
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
-    x: x - DEFAULT_WIDTH / 2,
-    y: y - DEFAULT_WIDTH / 2,
-    color: '#0000ff',
+    x: Math.round(x - DEFAULT_WIDTH / 2),
+    y: Math.round(y - DEFAULT_WIDTH / 2),
+    color: randomColor(),
   }
 }
 
@@ -41,6 +44,16 @@ const elementsReducer = produce((draft, action) => {
     case ADD_ELEMENT: {
       const newElement = createElement(action.x, action.y)
       draft.elements.push(newElement)
+      break
+    }
+    case REMOVE_ELEMENT: {
+      const { id } = action
+      const elementIdx = draft.elements.findIndex(
+        (element) => element.id === id
+      )
+      // bail if element doesn't exist
+      if (elementIdx === -1) return
+      draft.elements.splice(elementIdx, 1)
       break
     }
     case START_DRAG: {
@@ -63,7 +76,10 @@ const elementsReducer = produce((draft, action) => {
       // bail if element doesn't exist
       if (element === undefined) return
       const { x, y } = action
-      Object.assign(element, { x: x - diffX, y: y - diffY })
+      Object.assign(element, {
+        x: Math.round(x - diffX),
+        y: Math.round(y - diffY),
+      })
       break
     }
     // change any attributes on the element
@@ -85,13 +101,17 @@ const initialState = {
   draggingId: null, // if null, it means no elements are being dragged
   diffX: null,
   diffY: null,
-  elements: [],
+  elements: [createElement(400, 150)],
 }
 
 // action creators
 
 function addElement({ x, y }) {
   return { type: ADD_ELEMENT, x, y }
+}
+
+function removeElement({ id }) {
+  return { type: REMOVE_ELEMENT, id }
 }
 
 function startDrag({ id, diffX, diffY }) {

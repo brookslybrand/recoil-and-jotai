@@ -1,5 +1,11 @@
 import React from 'react'
-import { addElement, startDrag, stopDrag, drag } from './elements-state'
+import {
+  addElement,
+  startDrag,
+  stopDrag,
+  drag,
+  removeElement,
+} from './elements-state'
 
 export default function Canvas({ elements, dispatch }) {
   return (
@@ -35,13 +41,14 @@ export default function Canvas({ elements, dispatch }) {
               startDrag({ id, diffX: e.clientX - x, diffY: e.clientY - y })
             )
           }}
+          onDelete={() => dispatch(removeElement({ id }))}
         />
       ))}
     </section>
   )
 }
 
-function Draggable({ top, left, width, height, color, onMouseDown }) {
+function Draggable({ top, left, width, height, color, onMouseDown, onDelete }) {
   return (
     <div
       className="absolute cursor-move cursor overflow-hidden"
@@ -54,6 +61,38 @@ function Draggable({ top, left, width, height, color, onMouseDown }) {
       }}
       onMouseDown={onMouseDown}
       onClick={(e) => e.stopPropagation()}
-    />
+    >
+      <CloseButton
+        onClick={(e) => {
+          e.stopPropagation()
+          onDelete()
+        }}
+      />
+    </div>
+  )
+}
+
+// taken from https://heroicons.com/
+function CloseButton({ onClick }) {
+  return (
+    <button
+      className="rounded-full w-4 h-4 absolute top-0 right-0 bg-gray-300 border border-blue-600 hover:bg-gray-400 active:bg-gray-600 focus:border-blue-800 focus:border-2 focus:outline-none  "
+      aria-label="remove element"
+      onClick={onClick}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="black"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    </button>
   )
 }

@@ -68,10 +68,9 @@ function ElementInputs({ id, title, x, y, color, dispatch }) {
           className="text-black"
           type="color"
           value={color}
-          onChange={(e) => {
-            console.log(e.target.value)
+          onChange={(e) =>
             handleChangeElementAttributes({ color: e.target.value })
-          }}
+          }
         />
       </label>
     </div>
