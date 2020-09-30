@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   addElement,
   startDrag,
@@ -7,11 +7,12 @@ import {
   removeElement,
 } from './elements-state'
 
-export default function Canvas({ elements, dispatch }) {
+export default function Canvas({ elements = [], dispatch }) {
+  const hasElements = elements.length > 0
   return (
     <section
       className="w-full h-full bg-gray-200"
-      onClick={(e) => {
+      onDoubleClick={(e) => {
         dispatch(addElement({ x: e.clientX, y: e.clientY }))
       }}
       onMouseLeave={(e) => {
@@ -44,6 +45,13 @@ export default function Canvas({ elements, dispatch }) {
           onDelete={() => dispatch(removeElement({ id }))}
         />
       ))}
+      {!hasElements ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <h2 className="text-2xl text-gray-800 select-none">
+            Double Click to add an element
+          </h2>
+        </div>
+      ) : null}
     </section>
   )
 }
@@ -60,7 +68,11 @@ function Draggable({ top, left, width, height, color, onMouseDown, onDelete }) {
         backgroundColor: color,
       }}
       onMouseDown={onMouseDown}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation()
+
+        e.nativeEvent.stopImmediatePropagation()
+      }}
     >
       <CloseButton
         onClick={(e) => {
