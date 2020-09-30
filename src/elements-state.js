@@ -57,10 +57,14 @@ const elementsReducer = produce((draft, action) => {
       break
     }
     case START_DRAG: {
-      const { id, diffX, diffY } = action
+      const { id, x, y } = action
       const element = draft.elements.find((element) => element.id === id)
       // bail if element doesn't exist
       if (element === undefined) return
+      // get the diff from where the user clicked and where the element starts
+      const diffX = x - element.x
+      const diffY = y - element.y
+
       Object.assign(draft, { draggingId: id, diffX, diffY })
       break
     }
@@ -101,11 +105,10 @@ const initialState = {
   draggingId: null, // if null, it means no elements are being dragged
   diffX: null,
   diffY: null,
-  elements: [createElement(400, 150)],
+  elements: [createElement(150, 150)],
 }
 
 // action creators
-
 function addElement({ x, y }) {
   return { type: ADD_ELEMENT, x, y }
 }
@@ -114,8 +117,8 @@ function removeElement({ id }) {
   return { type: REMOVE_ELEMENT, id }
 }
 
-function startDrag({ id, diffX, diffY }) {
-  return { type: START_DRAG, id, diffX, diffY }
+function startDrag({ id, x, y }) {
+  return { type: START_DRAG, id, x, y }
 }
 
 function stopDrag() {
