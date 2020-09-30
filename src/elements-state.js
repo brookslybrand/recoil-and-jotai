@@ -101,7 +101,7 @@ const initialState = {
   draggingId: null, // if null, it means no elements are being dragged
   diffX: null,
   diffY: null,
-  elements: [],
+  elements: [createElement(400, 150)],
 }
 
 // action creators
