@@ -7,7 +7,7 @@
     "@testing-library/react": "^11.0.4",
     "@testing-library/user-event": "^12.1.6",
     "immer": "^7.0.9",
-    "jotai": "^0.7.2",
+    "jotai": "^0.7.4",
     "randomcolor": "^0.6.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
