@@ -1,13 +1,8 @@
 import { v4 as uuid } from 'uuid'
 import produce from 'immer'
 import randomColor from 'randomcolor'
-import {
-  atom,
-  atomFamily,
-  useRecoilState,
-  selector,
-  useSetRecoilState,
-} from 'recoil'
+import { atom, useAtom } from 'jotai'
+import { atomFamily, useUpdateAtom } from 'jotai/utils'
 
 export {
   addElement,
@@ -20,36 +15,26 @@ export {
   useDispatch,
 }
 
-const elementIdsAtom = atom({
-  key: 'elementIdsAtom',
-  default: [],
-})
+const elementIdsAtom = atom([])
 
 function useElementIds() {
-  return useRecoilState(elementIdsAtom)
+  return useAtom(elementIdsAtom)
 }
 
-const elementsAtomFamily = atomFamily({
-  key: 'elementsAtomFamily',
-  default: undefined,
-})
+const elementsAtomFamily = atomFamily(() => undefined)
 
 function useElement(id) {
-  return useRecoilState(elementsAtomFamily(id))
+  return useAtom(elementsAtomFamily(id))
 }
 
 function useDispatch() {
-  const dispatch = useSetRecoilState(dispatchSelector)
-  return dispatch
+  return useUpdateAtom(dispatchSelector)
 }
 
 const dragElementAtom = atom({
-  key: 'dragElementAtom',
-  default: {
-    draggingId: null, // if null, it means no elements are being dragged
-    diffX: null,
-    diffY: null,
-  },
+  draggingId: null, // if null, it means no elements are being dragged
+  diffX: null,
+  diffY: null,
 })
 
 // action types
@@ -59,10 +44,9 @@ const START_DRAG = 'START_DRAG'
 const STOP_DRAG = 'STOP_DRAG'
 const DRAG = 'DRAG'
 
-const dispatchSelector = selector({
-  key: 'dispatchSelector',
-  get: null, // only using this selector to combine setters
-  set: ({ get, set }, action) => {
+const dispatchSelector = atom(
+  null, // only using this selector to combine setters
+  (get, set, action) => {
     // create some handlers
     const setElementIds = (recipe) => set(elementIdsAtom, produce(recipe))
     const setElement = (id, recipe) =>
@@ -82,6 +66,7 @@ const dispatchSelector = selector({
           const elementIdx = draft.findIndex((elementId) => elementId === id)
           // bail if element doesn't exist
           if (elementIdx === -1) return
+          elementsAtomFamily.remove(id) // remove the reference from memory
           draft.splice(elementIdx, 1)
         })
         break
@@ -121,8 +106,8 @@ const dispatchSelector = selector({
         throw Error(`Uncaught action of type ${action.type}`)
       }
     }
-  },
-})
+  }
+)
 
 const DEFAULT_WIDTH = 75
 const DEFAULT_HEIGHT = 75

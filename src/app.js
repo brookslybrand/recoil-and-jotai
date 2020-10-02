@@ -1,5 +1,5 @@
 import React from 'react'
-import { RecoilRoot } from 'recoil'
+import { Provider } from 'jotai'
 import { Canvas, Draggable } from './canvas'
 import ElementInputs from './element-inputs'
 
@@ -7,7 +7,7 @@ import { useElementIds } from './elements-state'
 
 export default function App() {
   return (
-    <RecoilRoot>
+    <Provider>
       <div className="flex flex-col h-screen">
         <Header />
 
@@ -15,7 +15,7 @@ export default function App() {
           <Content />
         </div>
       </div>
-    </RecoilRoot>
+    </Provider>
   )
 }
 
