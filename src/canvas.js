@@ -5,10 +5,12 @@ import {
   stopDrag,
   drag,
   removeElement,
+  useDispatch,
+  useElement,
 } from './elements-state'
 
-export default function Canvas({ elements = [], dispatch }) {
-  const hasElements = elements.length > 0
+export function Canvas({ elementIds = [], children }) {
+  const dispatch = useDispatch()
   return (
     <section
       className="w-full h-full bg-gray-200"
@@ -29,33 +31,15 @@ export default function Canvas({ elements = [], dispatch }) {
         dispatch(stopDrag())
       }}
     >
-      {elements.map(({ id, x, y, width, height, color }) => (
-        <Draggable
-          key={id}
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          color={color}
-          onMouseDown={(e) => {
-            e.preventDefault()
-            dispatch(startDrag({ id, x: e.clientX, y: e.clientY }))
-          }}
-          onDelete={() => dispatch(removeElement({ id }))}
-        />
-      ))}
-      {!hasElements ? (
-        <div className="w-full h-full flex items-center justify-center">
-          <h2 className="text-2xl text-gray-800 select-none">
-            Double Click to add an element
-          </h2>
-        </div>
-      ) : null}
+      {children}
     </section>
   )
 }
 
-function Draggable({ x, y, width, height, color, onMouseDown, onDelete }) {
+export function Draggable({ id }) {
+  const [{ x, y, width, height, color }] = useElement(id)
+  const dispatch = useDispatch()
+
   return (
     <div
       className="absolute cursor-move cursor overflow-hidden"
@@ -65,7 +49,10 @@ function Draggable({ x, y, width, height, color, onMouseDown, onDelete }) {
         height,
         backgroundColor: color,
       }}
-      onMouseDown={onMouseDown}
+      onMouseDown={(e) => {
+        e.preventDefault()
+        dispatch(startDrag({ id, x: e.clientX, y: e.clientY }))
+      }}
       onClick={(e) => {
         e.stopPropagation()
       }}
@@ -76,7 +63,7 @@ function Draggable({ x, y, width, height, color, onMouseDown, onDelete }) {
       <CloseButton
         onClick={(e) => {
           e.stopPropagation()
-          onDelete()
+          dispatch(removeElement({ id }))
         }}
       />
     </div>

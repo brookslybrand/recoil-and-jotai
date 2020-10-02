@@ -1,19 +1,13 @@
+import produce from 'immer'
 import React from 'react'
 
-import { changeElementAttributes } from './elements-state'
+import { useElement } from './elements-state'
 
-export default function ElementInputs({
-  id,
-  title,
-  x,
-  y,
-  width,
-  height,
-  color,
-  dispatch,
-}) {
+export default function ElementInputs({ id, title }) {
+  const [{ x, y, width, height, color }, setElement] = useElement(id)
+
   const handleChangeElementAttributes = (attributes) =>
-    dispatch(changeElementAttributes({ id, ...attributes }))
+    setElement(produce((draft) => Object.assign(draft, attributes)))
 
   // generate ids for all of the label and forms
   const xFormId = `${id}-x`

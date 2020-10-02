@@ -1,39 +1,51 @@
 import React from 'react'
-import Canvas from './canvas'
+import { RecoilRoot } from 'recoil'
+import { Canvas, Draggable } from './canvas'
 import ElementInputs from './element-inputs'
 
-import { useElements } from './elements-state'
+import { useElementIds } from './elements-state'
 
 export default function App() {
-  const [elements, dispatch] = useElements()
+  return (
+    <RecoilRoot>
+      <div className="flex flex-col h-screen">
+        <Header />
+
+        <div className="flex-1 flex flex-row overflow-hidden">
+          <Content />
+        </div>
+      </div>
+    </RecoilRoot>
+  )
+}
+
+function Content() {
+  const [elementIds] = useElementIds()
 
   return (
-    <div className="flex flex-col h-screen">
-      <Header />
-
-      <div className="flex-1 flex flex-row overflow-hidden">
-        <Sidebar>
-          <div className="px-4 py-4">
-            {elements.map(({ id, x, y, width, height, color }, idx) => (
-              <ElementInputs
-                key={id}
-                id={id}
-                title={`Element ${idx + 1}`}
-                x={x}
-                y={y}
-                width={width}
-                height={height}
-                color={color}
-                dispatch={dispatch}
-              />
-            ))}
-          </div>
-        </Sidebar>
-        <Main>
-          <Canvas elements={elements} dispatch={dispatch} />
-        </Main>
-      </div>
-    </div>
+    <>
+      <Sidebar>
+        <div className="px-4 py-4">
+          {elementIds.map((id, idx) => (
+            <ElementInputs key={id} id={id} title={`Element ${idx + 1}`} />
+          ))}
+        </div>
+      </Sidebar>
+      <Main>
+        <Canvas>
+          {elementIds.map((id) => (
+            <Draggable key={id} id={id} />
+          ))}
+          {elementIds === 0 ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <h2 className="text-2xl text-gray-800 select-none">
+                Double Click to add an element
+              </h2>
+            </div>
+          ) : null}
+        </Canvas>
+      </Main>
+    </>
   )
 }
 
