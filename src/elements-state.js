@@ -42,57 +42,22 @@ function createElement(x, y) {
 const elementsReducer = produce((draft, action) => {
   switch (action.type) {
     case ADD_ELEMENT: {
-      const newElement = createElement(action.x, action.y)
-      draft.elements.push(newElement)
       break
     }
     case REMOVE_ELEMENT: {
-      const { id } = action
-      const elementIdx = draft.elements.findIndex(
-        (element) => element.id === id
-      )
-      // bail if element doesn't exist
-      if (elementIdx === -1) return
-      draft.elements.splice(elementIdx, 1)
       break
     }
     case START_DRAG: {
-      const { id, x, y } = action
-      const element = draft.elements.find((element) => element.id === id)
-      // bail if element doesn't exist
-      if (element === undefined) return
-      // get the diff from where the user clicked and where the element starts
-      const diffX = x - element.x
-      const diffY = y - element.y
-
-      Object.assign(draft, { draggingId: id, diffX, diffY })
       break
     }
     case STOP_DRAG: {
-      Object.assign(draft, { draggingId: null, diffX: null, diffY: null })
       break
     }
     case DRAG: {
-      const { draggingId, diffX, diffY } = draft
-      // bail if not dragging
-      if (draggingId === null) break
-      const element = draft.elements.find(({ id }) => id === draggingId)
-      // bail if element doesn't exist
-      if (element === undefined) return
-      const { x, y } = action
-      Object.assign(element, {
-        x: Math.round(x - diffX),
-        y: Math.round(y - diffY),
-      })
       break
     }
     // change any attributes on the element
     case CHANGE_ELEMENT_ATTRIBUTES: {
-      let { id, ...newAttributes } = action
-      const element = draft.elements.find((element) => element.id === id)
-      // bail if element doesn't exist
-      if (element === undefined) return
-      Object.assign(element, newAttributes)
       break
     }
     default: {
@@ -102,9 +67,6 @@ const elementsReducer = produce((draft, action) => {
 })
 
 const initialState = {
-  draggingId: null, // if null, it means no elements are being dragged
-  diffX: null,
-  diffY: null,
   elements: [],
 }
 
