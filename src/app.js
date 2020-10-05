@@ -36,7 +36,7 @@ function Content() {
           {elementIds.map((id) => (
             <Draggable key={id} id={id} />
           ))}
-          {elementIds === 0 ? (
+          {elementIds.length === 0 ? (
             <div className="w-full h-full flex items-center justify-center">
               <h2 className="text-2xl text-gray-800 select-none">
                 Double Click to add an element
